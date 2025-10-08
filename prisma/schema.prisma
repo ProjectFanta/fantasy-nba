@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model League {
+  id          Int           @id @default(autoincrement())
+  name        String
+  description String?
+  competitions Competition[]
+  createdAt   DateTime      @default(now())
+}
+
+model Competition {
+  id            Int       @id @default(autoincrement())
+  name          String
+  type          String
+  leagueId      Int
+  league        League     @relation(fields: [leagueId], references: [id])
+  rounds        Round[]
+  teams         Team[]
+  createdAt     DateTime   @default(now())
+}
+
+model Round {
+  id             Int           @id @default(autoincrement())
+  competitionId  Int
+  name           String
+  startDate      DateTime
+  endDate        DateTime
+  results        Result[]
+  competition    Competition   @relation(fields: [competitionId], references: [id])
+}
+
+model Team {
+  id             Int           @id @default(autoincrement())
+  name           String
+  competitionId  Int
+  competition    Competition   @relation(fields: [competitionId], references: [id])
+  players        Player[]
+}
+
+model Player {
+  id        Int       @id @default(autoincrement())
+  name      String
+  teamId    Int
+  team      Team      @relation(fields: [teamId], references: [id])
+  results   Result[]
+}
+
+model Result {
+  id        Int       @id @default(autoincrement())
+  playerId  Int
+  roundId   Int
+  points    Float
+  player    Player    @relation(fields: [playerId], references: [id])
+  round     Round     @relation(fields: [roundId], references: [id])
+  createdAt DateTime  @default(now())
+}
