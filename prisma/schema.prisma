@@ -7,57 +7,95 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  password  String
+  role      String   @default("user")
+  teams     Team[]   // eventuale relazione alle squadre
+  leaguesCreated League[] @relation("LeagueOwner")
+  createdAt DateTime @default(now())
+}
+
 model League {
   id          Int           @id @default(autoincrement())
   name        String
   description String?
+  ownerId     Int
+  owner       User          @relation("LeagueOwner", fields: [ownerId], references: [id])
   competitions Competition[]
+  members     LeagueMember[]
   createdAt   DateTime      @default(now())
 }
 
+model LeagueMember {
+  id       Int    @id @default(autoincrement())
+  leagueId Int
+  userId   Int
+  role     String @default("member")
+  league   League @relation(fields: [leagueId], references: [id])
+  user     User   @relation(fields: [userId], references: [id])
+
+  @@unique([leagueId, userId])
+}
+
 model Competition {
-  id            Int       @id @default(autoincrement())
-  name          String
-  type          String
-  leagueId      Int
-  league        League     @relation(fields: [leagueId], references: [id])
-  rounds        Round[]
-  teams         Team[]
-  createdAt     DateTime   @default(now())
+  id          Int       @id @default(autoincrement())
+  name        String
+  type        String
+  leagueId    Int
+  league      League    @relation(fields: [leagueId], references: [id])
+  rounds      Round[]
+  teams       Team[]
+  createdAt   DateTime  @default(now())
 }
 
 model Round {
-  id             Int           @id @default(autoincrement())
-  competitionId  Int
-  name           String
-  startDate      DateTime
-  endDate        DateTime
-  results        Result[]
-  competition    Competition   @relation(fields: [competitionId], references: [id])
+  id            Int       @id @default(autoincrement())
+  competitionId Int
+  name          String
+  startDate     DateTime
+  endDate       DateTime
+  results       Result[]
+  competition   Competition @relation(fields: [competitionId], references: [id])
 }
 
 model Team {
-  id             Int           @id @default(autoincrement())
-  name           String
-  competitionId  Int
-  competition    Competition   @relation(fields: [competitionId], references: [id])
-  players        Player[]
+  id            Int        @id @default(autoincrement())
+  name          String
+  competitionId Int
+  ownerId       Int?
+  competition   Competition @relation(fields: [competitionId], references: [id])
+  owner         User?       @relation(fields: [ownerId], references: [id])
+  players       TeamPlayer[]
+  createdAt     DateTime    @default(now())
+}
+
+model TeamPlayer {
+  id        Int    @id @default(autoincrement())
+  teamId    Int
+  playerId  Int
+  team      Team   @relation(fields: [teamId], references: [id])
+  player    Player @relation(fields: [playerId], references: [id])
+  createdAt DateTime @default(now())
 }
 
 model Player {
-  id        Int       @id @default(autoincrement())
-  name      String
-  teamId    Int
-  team      Team      @relation(fields: [teamId], references: [id])
-  results   Result[]
+  id         Int       @id @default(autoincrement())
+  name       String
+  nbaTeam    String?
+  results    Result[]
+  teamPlayers TeamPlayer[]
+  createdAt  DateTime  @default(now())
 }
 
 model Result {
-  id        Int       @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   playerId  Int
   roundId   Int
   points    Float
-  player    Player    @relation(fields: [playerId], references: [id])
-  round     Round     @relation(fields: [roundId], references: [id])
-  createdAt DateTime  @default(now())
+  player    Player   @relation(fields: [playerId], references: [id])
+  round     Round    @relation(fields: [roundId], references: [id])
+  createdAt DateTime @default(now())
 }
