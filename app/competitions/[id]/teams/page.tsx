@@ -144,9 +144,11 @@ export default function CompetitionTeamsPage({ params }: { params: { id: string 
               <li key={team.id} style={{ marginBottom: 12 }}>
                 <strong>{team.name}</strong>
                 {myTeam && team.id === myTeam.id && " (la tua)"}
-                <div style={{ marginTop: 4 }}>
-                  <a href={`/teams/${team.id}/lineups`}>Imposta formazione</a>
-                </div>
+                {myTeam && team.id === myTeam.id && (
+                  <div style={{ marginTop: 4 }}>
+                    <a href={`/teams/${team.id}/lineups`}>Imposta formazione</a>
+                  </div>
+                )}
               </li>
             ))}
           </ul>
