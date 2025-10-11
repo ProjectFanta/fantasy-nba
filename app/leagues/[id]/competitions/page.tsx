@@ -95,6 +95,8 @@ export default function LeagueCompetitionsPage({ params }: { params: { id: strin
                 <strong>{c.name}</strong> — {c.type}{c.totalRounds ? `, ${c.totalRounds} giornate` : ""}
                 <div style={{ marginTop: 4 }}>
                   <a href={`/competitions/${c.id}/rounds`}>Configura calendario giornate</a>
+                  <span style={{ margin: "0 8px" }}>|</span>
+                  <a href={`/competitions/${c.id}/teams`}>Gestisci squadre</a>
                 </div>
               </li>
             ))}
