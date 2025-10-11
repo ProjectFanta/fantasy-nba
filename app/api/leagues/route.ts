@@ -25,6 +25,7 @@ export async function POST(req: Request) {
       data: {
         name,
         description: description ?? null,
+        ownerId: Number(user.userId),
       },
     });
 

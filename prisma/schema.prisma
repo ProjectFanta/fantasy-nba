@@ -25,11 +25,13 @@ model League {
   id            Int             @id @default(autoincrement())
   name          String
   description   String?
+  ownerId       Int?
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 
   competitions  Competition[]
   members       LeagueMember[]
+  owner         User?           @relation(fields: [ownerId], references: [id])
 }
 
 model LeagueMember {
@@ -69,8 +71,22 @@ model Round {
 
   competition   Competition @relation(fields: [competitionId], references: [id])
   lineups       Lineup[]
+  results       PlayerResult[]
 
   @@unique([competitionId, dayIndex])
+}
+
+model PlayerResult {
+  id        Int      @id @default(autoincrement())
+  roundId   Int
+  player    String
+  points    Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  round     Round    @relation(fields: [roundId], references: [id])
+
+  @@unique([roundId, player])
 }
 
 model Team {
