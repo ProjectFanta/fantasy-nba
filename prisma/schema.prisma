@@ -10,51 +10,66 @@ datasource db {
 }
 
 model User {
-  id             Int              @id @default(autoincrement())
-  email          String           @unique
-  name           String?
-  password       String?
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+  id            Int             @id @default(autoincrement())
+  email         String          @unique
+  name          String?
+  password      String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
 
-  // Relazioni
-  leagueMembers  LeagueMember[]
-  teams          Team[]
+  leagueMembers LeagueMember[]
+  teams         Team[]
 }
 
 model League {
-  id              Int              @id @default(autoincrement())
-  name            String
-  description     String?
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  id            Int             @id @default(autoincrement())
+  name          String
+  description   String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
 
-  // Relazioni
-  competitions    Competition[]
-  members         LeagueMember[]
+  competitions  Competition[]
+  members       LeagueMember[]
 }
 
 model LeagueMember {
   id        Int     @id @default(autoincrement())
   leagueId  Int
   userId    Int
+  createdAt DateTime @default(now())
 
-  // Relazioni
   league    League  @relation(fields: [leagueId], references: [id])
   user      User    @relation(fields: [userId], references: [id])
+
+  @@unique([leagueId, userId])
 }
 
 model Competition {
-  id            Int          @id @default(autoincrement())
-  name          String
-  scoringType   String
-  leagueId      Int
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  id          Int       @id @default(autoincrement())
+  leagueId    Int
+  name        String
+  type        String    // "H2H" | "F1"
+  totalRounds Int?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-  // Relazioni
-  league        League       @relation(fields: [leagueId], references: [id])
-  teams         Team[]
+  league      League    @relation(fields: [leagueId], references: [id])
+  teams       Team[]
+  rounds      Round[]
+}
+
+model Round {
+  id            Int       @id @default(autoincrement())
+  competitionId Int
+  name          String
+  dayIndex      Int
+  startDate     DateTime
+  endDate       DateTime
+  createdAt     DateTime  @default(now())
+
+  competition   Competition @relation(fields: [competitionId], references: [id])
+
+  @@unique([competitionId, dayIndex])
 }
 
 model Team {
@@ -65,7 +80,6 @@ model Team {
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
-  // Relazioni
   competition    Competition  @relation(fields: [competitionId], references: [id])
   user           User?        @relation(fields: [userId], references: [id])
 }
