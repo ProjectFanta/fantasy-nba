@@ -68,6 +68,7 @@ model Round {
   createdAt     DateTime  @default(now())
 
   competition   Competition @relation(fields: [competitionId], references: [id])
+  lineups       Lineup[]
 
   @@unique([competitionId, dayIndex])
 }
@@ -82,4 +83,17 @@ model Team {
 
   competition    Competition  @relation(fields: [competitionId], references: [id])
   user           User?        @relation(fields: [userId], references: [id])
+  lineups        Lineup[]
+}
+
+model Lineup {
+  id        Int      @id @default(autoincrement())
+  teamId    Int
+  roundId   Int
+  entries   Json
+  createdAt DateTime @default(now())
+  team      Team     @relation(fields: [teamId], references: [id])
+  round     Round    @relation(fields: [roundId], references: [id])
+
+  @@unique([teamId, roundId])
 }
