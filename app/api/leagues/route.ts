@@ -24,7 +24,8 @@ export async function POST(req: Request) {
     const league = await prisma.league.create({
       data: {
         name,
-        description: description ?? null,
+        description: null,
+        ownerId: Number(user.userId),
       },
     });
 
