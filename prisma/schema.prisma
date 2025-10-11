@@ -1,5 +1,3 @@
-// prisma/schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -19,56 +17,65 @@ model User {
 
   leagueMembers LeagueMember[]
   teams         Team[]
+
+  // Lato opposto della relazione "owner" su League
+  ownedLeagues  League[]        @relation("LeagueOwner")
 }
 
 model League {
   id            Int             @id @default(autoincrement())
   name          String
   description   String?
+  ownerId       Int?
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
+
+  // Relazione esplicita verso User come proprietario
+  owner         User?           @relation("LeagueOwner", fields: [ownerId], references: [id])
 
   competitions  Competition[]
   members       LeagueMember[]
 }
 
 model LeagueMember {
-  id        Int     @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   leagueId  Int
   userId    Int
   createdAt DateTime @default(now())
 
-  league    League  @relation(fields: [leagueId], references: [id])
-  user      User    @relation(fields: [userId], references: [id])
+  league    League   @relation(fields: [leagueId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 
   @@unique([leagueId, userId])
 }
 
 model Competition {
-  id          Int       @id @default(autoincrement())
+  id          Int        @id @default(autoincrement())
   leagueId    Int
   name        String
-  type        String    // "H2H" | "F1"
+  type        String     // "H2H" | "F1"
   totalRounds Int?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 
-  league      League    @relation(fields: [leagueId], references: [id])
+  league      League     @relation(fields: [leagueId], references: [id])
   teams       Team[]
   rounds      Round[]
 }
 
 model Round {
-  id            Int       @id @default(autoincrement())
+  id            Int           @id @default(autoincrement())
   competitionId Int
   name          String
   dayIndex      Int
   startDate     DateTime
   endDate       DateTime
-  createdAt     DateTime  @default(now())
+  createdAt     DateTime      @default(now())
 
-  competition   Competition @relation(fields: [competitionId], references: [id])
+  competition   Competition   @relation(fields: [competitionId], references: [id])
+
   lineups       Lineup[]
+  results       PlayerResult[]
 
   @@unique([competitionId, dayIndex])
 }
@@ -83,6 +90,7 @@ model Team {
 
   competition    Competition  @relation(fields: [competitionId], references: [id])
   user           User?        @relation(fields: [userId], references: [id])
+
   lineups        Lineup[]
 }
 
@@ -92,8 +100,22 @@ model Lineup {
   roundId   Int
   entries   Json
   createdAt DateTime @default(now())
+
   team      Team     @relation(fields: [teamId], references: [id])
   round     Round    @relation(fields: [roundId], references: [id])
 
   @@unique([teamId, roundId])
+}
+
+model PlayerResult {
+  id        Int      @id @default(autoincrement())
+  roundId   Int
+  player    String
+  points    Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  round     Round    @relation(fields: [roundId], references: [id])
+
+  @@unique([roundId, player])
 }
