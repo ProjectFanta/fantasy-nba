@@ -119,3 +119,20 @@ model PlayerResult {
 
   @@unique([roundId, player])
 }
+
+model Match {
+  id            Int      @id @default(autoincrement())
+  competitionId Int
+  roundId       Int
+  homeTeamId    Int
+  awayTeamId    Int
+  homeScore     Float    @default(0)
+  awayScore     Float    @default(0)
+  result        String?
+  createdAt     DateTime @default(now())
+
+  @@map("Match")
+  @@unique([competitionId, roundId, homeTeamId, awayTeamId])
+  @@index([competitionId])
+  @@index([roundId])
+}
