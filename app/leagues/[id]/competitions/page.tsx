@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 type Competition = {
@@ -31,7 +32,10 @@ export default function LeagueCompetitionsPage({ params }: { params: { id: strin
     }
   }
 
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [leagueId]);
+  useEffect(() => {
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [leagueId]);
 
   async function createCompetition(e: React.FormEvent) {
     e.preventDefault();
@@ -41,9 +45,9 @@ export default function LeagueCompetitionsPage({ params }: { params: { id: strin
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: token ? `Bearer ${token}` : ""
+          Authorization: token ? `Bearer ${token}` : "",
         },
-        body: JSON.stringify({ leagueId, name, type, totalRounds })
+        body: JSON.stringify({ leagueId, name, type, totalRounds }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -69,15 +73,19 @@ export default function LeagueCompetitionsPage({ params }: { params: { id: strin
           <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nome competizione" />
           <label>
             Tipo:&nbsp;
-            <select value={type} onChange={(e) => setType(e.target.value as "H2H" | "F1")}>
+            <select value={type} onChange={(e) => setType(e.target.value as "H2H" | "F1")}> 
               <option value="H2H">Calendario 1v1 (H2H)</option>
               <option value="F1">Formula 1</option>
             </select>
           </label>
           <label>
             Numero giornate:&nbsp;
-            <input type="number" min={1} value={totalRounds}
-              onChange={(e) => setTotalRounds(Number(e.target.value) || 1)} />
+            <input
+              type="number"
+              min={1}
+              value={totalRounds}
+              onChange={(e) => setTotalRounds(Number(e.target.value) || 1)}
+            />
           </label>
           <button type="submit">Crea competizione</button>
         </form>
@@ -90,13 +98,16 @@ export default function LeagueCompetitionsPage({ params }: { params: { id: strin
           <p>Nessuna competizione</p>
         ) : (
           <ul>
-            {list.map(c => (
+            {list.map((c) => (
               <li key={c.id} style={{ marginBottom: 8 }}>
-                <strong>{c.name}</strong> — {c.type}{c.totalRounds ? `, ${c.totalRounds} giornate` : ""}
-                <div style={{ marginTop: 4 }}>
-                  <a href={`/competitions/${c.id}/rounds`}>Configura calendario giornate</a>
-                  <span style={{ margin: "0 8px" }}>|</span>
-                  <a href={`/competitions/${c.id}/teams`}>Gestisci squadre</a>
+                <strong>{c.name}</strong> — {c.type}
+                {c.totalRounds ? `, ${c.totalRounds} giornate` : ""}
+                <div style={{ marginTop: 4, display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  <Link href={`/competitions/${c.id}/rounds`}>Configura calendario giornate</Link>
+                  <span style={{ margin: "0 4px" }}>|</span>
+                  <Link href={`/competitions/${c.id}/teams`}>Gestisci squadre</Link>
+                  <span style={{ margin: "0 4px" }}>|</span>
+                  <Link href={`/competitions/${c.id}`}>Apri Hub</Link>
                 </div>
               </li>
             ))}
