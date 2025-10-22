@@ -10,7 +10,8 @@ import { getUserFromToken } from "../../../../../lib/auth";
 type RoundInput = {
   name?: string;
   startDate: string; // ISO date string (es. "2025-10-11T00:00:00Z")
-  endDate: string;   // ISO date string
+  endDate: string; // ISO date string
+  lockAt?: string | null; // ISO date string oppure null
 };
 
 export async function GET(_req: Request, { params }: { params: { id: string } }) {
@@ -23,7 +24,15 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
     const rounds = await prisma.round.findMany({
       where: { competitionId },
       orderBy: { dayIndex: "asc" },
-      select: { id: true, competitionId: true, name: true, dayIndex: true, startDate: true, endDate: true }
+      select: {
+        id: true,
+        competitionId: true,
+        name: true,
+        dayIndex: true,
+        startDate: true,
+        endDate: true,
+        lockAt: true
+      }
     });
 
     return NextResponse.json({ ok: true, rounds });
@@ -71,13 +80,28 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     await prisma.round.deleteMany({ where: { competitionId } });
 
     // Inserimento batch
-    const data = rounds.map((r, idx) => ({
-      competitionId,
-      name: r.name?.trim() || `Giornata ${idx + 1}`,
-      dayIndex: idx + 1,
-      startDate: new Date(r.startDate),
-      endDate: new Date(r.endDate)
-    }));
+    const data = rounds.map((r, idx) => {
+      const startDate = new Date(r.startDate);
+      const endDate = new Date(r.endDate);
+      const lockAt = r.lockAt ? new Date(r.lockAt) : null;
+
+      if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) {
+        throw new Error("Date round non valide");
+      }
+
+      if (lockAt && Number.isNaN(lockAt.getTime())) {
+        throw new Error("lockAt non valido");
+      }
+
+      return {
+        competitionId,
+        name: r.name?.trim() || `Giornata ${idx + 1}`,
+        dayIndex: idx + 1,
+        startDate,
+        endDate,
+        ...(lockAt ? { lockAt } : {})
+      };
+    });
 
     const created = await prisma.$transaction(
       data.map((d) => prisma.round.create({ data: d }))
