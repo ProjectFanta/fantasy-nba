@@ -37,6 +37,7 @@ export default function NavBar() {
     >
       <Link href="/">🏠 Home</Link>
       <Link href="/leagues">Leagues</Link>
+      <Link href="/join">Join</Link>
       <div style={{ marginLeft: "auto", display: "flex", gap: 12 }}>
         {!logged ? (
           <>
