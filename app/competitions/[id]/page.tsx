@@ -80,6 +80,9 @@ export default function CompetitionHubPage() {
         <Link className="btn" href={`/competitions/${competitionId}/rounds`}>
           🗓️ Configura calendario giornate
         </Link>
+        <Link className="btn" href={`/competitions/${competitionId}/fixtures`}>
+          📅 Fixtures
+        </Link>
         <Link className="btn" href={`/competitions/${competitionId}/teams`}>
           👥 Gestisci squadre
         </Link>
