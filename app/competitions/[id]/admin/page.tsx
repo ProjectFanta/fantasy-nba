@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 
 type RoundOption = { id: number; name?: string | null; dayIndex?: number | null };
@@ -298,11 +299,33 @@ export default function CompetitionAdminPage() {
           Non hai i permessi per accedere al pannello amministrativo di questa competizione.
         </p>
       ) : (
-        <section style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <h2>Ricalcolo classifiche</h2>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
-              <button onClick={() => handleRecompute("f1")} disabled={busy !== null}>
+        <>
+          {competitionId ? (
+            <div style={{ marginBottom: 16 }}>
+              <Link
+                href={`/competitions/${competitionId}/admin/import`}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                  textDecoration: "none",
+                  background: "#1976d2",
+                  color: "#fff",
+                  padding: "8px 12px",
+                  borderRadius: 6,
+                  fontWeight: 600,
+                }}
+              >
+                <span aria-hidden="true">📥</span>
+                <span>Import risultati</span>
+              </Link>
+            </div>
+          ) : null}
+          <section style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <h2>Ricalcolo classifiche</h2>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
+                <button onClick={() => handleRecompute("f1")} disabled={busy !== null}>
                 {busy === "f1" ? "Ricalcolo F1…" : "Ricalcola F1"}
               </button>
               <button onClick={() => handleRecompute("h2h")} disabled={busy !== null}>
@@ -348,7 +371,8 @@ export default function CompetitionAdminPage() {
               </ul>
             )}
           </div>
-        </section>
+          </section>
+        </>
       )}
     </main>
   );
