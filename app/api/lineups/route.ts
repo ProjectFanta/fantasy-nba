@@ -3,8 +3,8 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 import { NextResponse } from "next/server";
-import prisma from "../../../lib/prisma";
-import { getUserFromToken } from "../../../lib/auth";
+import prisma from "@/lib/prisma";
+import { getUserFromToken } from "@/lib/auth";
 
 export async function GET(req: Request) {
   try {
@@ -54,6 +54,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const url = new URL(req.url);
+    const override = url.searchParams.get("override") === "1";
+
     const body = await req.json();
     const { teamId, roundId, entries } = body as {
       teamId?: number;
@@ -99,7 +102,18 @@ export async function POST(req: Request) {
 
     const round = await prisma.round.findUnique({
       where: { id: roundIdNum },
-      select: { id: true, competitionId: true }
+      select: {
+        id: true,
+        competitionId: true,
+        lockAt: true,
+        competition: {
+          select: {
+            league: {
+              select: { ownerId: true }
+            }
+          }
+        }
+      }
     });
 
     if (!round) {
@@ -108,6 +122,20 @@ export async function POST(req: Request) {
 
     if (round.competitionId !== team.competitionId) {
       return NextResponse.json({ error: "La giornata appartiene a un'altra competizione" }, { status: 400 });
+    }
+
+    const ownerId = round.competition?.league?.ownerId ?? null;
+    if (override && (!ownerId || ownerId !== userId)) {
+      return NextResponse.json({ error: "Override non consentito" }, { status: 403 });
+    }
+
+    const lockDate = round.lockAt ? new Date(round.lockAt) : null;
+    if (lockDate && !Number.isNaN(lockDate.getTime())) {
+      const isLocked = Date.now() >= lockDate.getTime();
+      const canOverride = override && ownerId === userId;
+      if (isLocked && !canOverride) {
+        return NextResponse.json({ error: "Round locked" }, { status: 403 });
+      }
     }
 
     const lineup = await prisma.lineup.upsert({
