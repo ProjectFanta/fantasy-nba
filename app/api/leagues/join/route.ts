@@ -30,7 +30,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Codice mancante" }, { status: 400 });
   }
 
-  const league = await prisma.league.findFirst({ where: { inviteCode: code } });
+  const league = await prisma.league.findFirst({ where: { inviteCode: code } as any });
   if (!league) {
     return NextResponse.json({ error: "Codice non valido" }, { status: 400 });
   }

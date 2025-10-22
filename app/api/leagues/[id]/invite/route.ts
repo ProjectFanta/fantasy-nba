@@ -39,8 +39,8 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   const code = crypto.randomBytes(9).toString("base64url");
   const updated = await prisma.league.update({
     where: { id: leagueId },
-    data: { inviteCode: code },
-    select: { id: true, inviteCode: true },
+    data: { inviteCode: code } as any,
+    select: { id: true, inviteCode: true } as any,
   });
   return NextResponse.json({ ok: true, ...updated });
 }
@@ -52,10 +52,10 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const league = await prisma.league.findUnique({
+  const league = (await prisma.league.findUnique({
     where: { id: leagueId },
-    select: { id: true, ownerId: true, inviteCode: true },
-  });
+    select: { id: true, ownerId: true, inviteCode: true } as any,
+  })) as any;
   if (!league) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }

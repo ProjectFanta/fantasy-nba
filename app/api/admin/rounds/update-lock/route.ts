@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
-import { Prisma } from "@prisma/client";
 import prisma from "@/lib/prisma";
 
 export const runtime = "nodejs";
@@ -77,14 +76,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "lockAt non valido" }, { status: 400 });
     }
 
-    const dataUpdate: Prisma.RoundUpdateInput = {};
-    if (typeof lockAt !== "undefined") {
-      dataUpdate.lockAt = lockAt;
-    }
-
     const updated = await prisma.round.update({
       where: { id: roundId },
-      data: dataUpdate,
+      data: (typeof lockAt === "undefined" ? {} : { lockAt }) as any,
       select: {
         id: true,
         name: true,
@@ -92,7 +86,7 @@ export async function POST(req: Request) {
         startDate: true,
         endDate: true,
         lockAt: true
-      }
+      } as any
     });
 
     return NextResponse.json({ ok: true, round: updated });

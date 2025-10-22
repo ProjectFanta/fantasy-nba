@@ -32,7 +32,7 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
         startDate: true,
         endDate: true,
         lockAt: true
-      }
+      } as any
     });
 
     return NextResponse.json({ ok: true, rounds });
