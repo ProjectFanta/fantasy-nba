@@ -100,7 +100,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Non sei il proprietario della squadra" }, { status: 403 });
     }
 
-    const round = await prisma.round.findUnique({
+    const round = (await prisma.round.findUnique({
       where: { id: roundIdNum },
       select: {
         id: true,
@@ -113,8 +113,8 @@ export async function POST(req: Request) {
             }
           }
         }
-      }
-    });
+      } as any
+    })) as any;
 
     if (!round) {
       return NextResponse.json({ error: "Giornata non trovata" }, { status: 404 });

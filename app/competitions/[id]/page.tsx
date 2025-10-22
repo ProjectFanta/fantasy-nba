@@ -89,6 +89,9 @@ export default function CompetitionHubPage() {
         <Link className="btn" href={`/competitions/${competitionId}/standings/f1`}>
           🏁 Classifica Formula-1
         </Link>
+        <Link className="btn" href={`/competitions/${competitionId}/admin`}>
+          ⚙️ Admin
+        </Link>
         <Link className="btn" href={`/competitions/${competitionId}/h2h-admin`}>
           🛠️ H2H Admin
         </Link>
