@@ -140,9 +140,10 @@ export default function LeaguesPage() {
               <li key={l.id} style={{ marginBottom: 12 }}>
                 <strong>{l.name}</strong>
                 <div style={{ color: "#666" }}>{l.description ?? "—"}</div>
-                <div style={{ marginTop: 4 }}>
+                <div style={{ marginTop: 4, display: "flex", gap: 12 }}>
                   {/* Link alla gestione competizioni per quella lega */}
                   <a href={`/leagues/${l.id}/competitions`}>Gestisci competizioni</a>
+                  <a href={`/leagues/${l.id}/invite`}>Invita utenti</a>
                 </div>
               </li>
             ))}
